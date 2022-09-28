@@ -10,10 +10,10 @@ class Player():
 
         self.velocity_x = 5
         self.velocity_y = 0
-    def Draw(self, screen):
-        pygame.draw.rect(screen, self.color, pygame.Rect(self.x, self.y, self.width, self.height))
+    def Draw(self, screen, camera_y):
+        pygame.draw.rect(screen, self.color, pygame.Rect(self.x, self.y + camera_y, self.width, self.height))
     
-    def Update(self, mouse_pressed, walls, limit):
+    def Update(self, mouse_pressed, level_up, level_down, limit, camera_y, upest_level_number):
         if mouse_pressed:
             self.velocity_y = -5
         
@@ -22,8 +22,21 @@ class Player():
 
         self.velocity_y += 0.3
 
-        for i in walls:
-            if i.GetRect().colliderect(pygame.Rect(self.x, self.y, self.width, self.height)):
+        collid = False
+        for i in level_down:
+            if i.GetRect(upest_level_number - 1).colliderect(pygame.Rect(self.x, self.y, self.width, self.height)):
+                if self.dir == "left":
+                    self.dir = "right"
+                    self.velocity_x = -5
+                else:
+                    self.dir = "left"
+                    self.velocity_x = 5
+                collid = True
+
+        for i in level_up:
+            if collid:
+                pass
+            elif i.GetRect(upest_level_number).colliderect(pygame.Rect(self.x, self.y, self.width, self.height)):
                 if self.dir == "left":
                     self.dir = "right"
                     self.velocity_x = -5
@@ -31,6 +44,12 @@ class Player():
                     self.dir = "left"
                     self.velocity_x = 5
         
+        if self.y < 100 - camera_y:
+            camera_y = 100 - self.y
+        
         if self.y + self.height > limit:
-            return True
-        return False
+            return True, camera_y
+        return False, camera_y
+
+    def GetRect(self):
+        return pygame.Rect(self.x, self.y, self.width, self.height)

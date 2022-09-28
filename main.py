@@ -3,10 +3,10 @@ import pygame
 pygame.init()
 
 from model.player import Player
-from model.walls import Walls
+from model.level import Levels
 
 class Game():
-    def __init__(self, screen, screen_height, screen_width):
+    def __init__(self, screen, screen_width, screen_height):
         self.screen = screen
         self.screen_height = screen_height
         self.screen_width = screen_width
@@ -19,12 +19,17 @@ class Game():
 
         self.player = Player(300, 200, 30, 30, (156, 44, 119))
 
-        self.walls = []
-        self.walls.append(Walls(0, 0, 50, 600, (225, 77, 42)))
-        self.walls.append(Walls(750, 0, 50, 600, (225, 77, 42)))
-
         self.limit = screen_height
         self.have_to_quit = False
+
+        self.camera_y = 0
+
+        self.upest_level_number = 1
+        self.level_down = Levels(0)
+        self.level_up = Levels(1)
+
+        self.lava_height = screen_height
+        #156, 44, 119
     
     def Run(self):
         while self.running:
@@ -75,12 +80,31 @@ class Game():
         self.screen.fill((253, 132, 31))
 
         if self.game_screen == "play_scene":
-            self.have_to_quit = self.player.Update(self.mouse_pressed, self.walls, self.limit)
+            self.have_to_quit, self.camera_y = self.player.Update(self.mouse_pressed, self.level_up.GetLevel(), self.level_down.GetLevel(), self.limit, self.camera_y, self.upest_level_number)
 
-            self.player.Draw(self.screen)
+            #set level limit
+            self.limit = self.screen_height - self.camera_y
 
-            for i in self.walls:
-                i.Draw(self.screen)
+            #change level
+            if self.camera_y > (self.upest_level_number * self.screen_height):
+                self.upest_level_number += 1
+                self.level_down = self.level_up
+                self.level_up = Levels(2)
+
+            self.player.Draw(self.screen, self.camera_y)
+
+            self.level_up.DrawLevel(self.screen, self.camera_y, self.upest_level_number)
+            self.level_down.DrawLevel(self.screen, self.camera_y, self.upest_level_number - 1)
+
+            #draw lava
+            self.lava_rect = pygame.Rect(50, self.lava_height, 700, screen_height)
+            self.lava_rect_draw = pygame.Rect(50, self.lava_height + self.camera_y, 700, screen_height)
+            pygame.draw.rect(self.screen, (156, 44, 119), self.lava_rect_draw)
+            #update for lava
+            self.lava_height -= 1
+            #collid lava
+            if self.player.GetRect().colliderect(self.lava_rect):
+                self.have_to_quit = True
     
     def Refresh(self):
         pygame.display.flip()

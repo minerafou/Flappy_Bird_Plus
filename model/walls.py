@@ -7,8 +7,8 @@ class Walls():
         self.height = height
         self.color = color
 
-    def Draw(self, screen):
-        pygame.draw.rect(screen, self.color, pygame.Rect(self.x, self.y, self.width, self.height))
+    def Draw(self, screen, camera_y, upest_level_number):
+        pygame.draw.rect(screen, self.color, pygame.Rect(self.x, self.y + camera_y - (upest_level_number * 600), self.width, self.height))
     
-    def GetRect(self):
-        return pygame.Rect(self.x, self.y, self.width, self.height)
+    def GetRect(self, upest_level_number):
+        return pygame.Rect(self.x, self.y - (upest_level_number * 600), self.width, self.height)
