@@ -1,4 +1,4 @@
-import pygame
+import pygame  
 
 pygame.init()
 
@@ -16,6 +16,7 @@ class Game():
         self.game_screen = "play_scene"
 
         self.main_clock = pygame.time.Clock()
+        self.counter = 0
 
         self.player = Player(300, 200, 30, 30, (156, 44, 119))
 
@@ -30,6 +31,8 @@ class Game():
 
         self.lava_height = screen_height
         #156, 44, 119
+
+        self.lava_timer = 3
     
     def Run(self):
         while self.running:
@@ -101,16 +104,28 @@ class Game():
             self.lava_rect_draw = pygame.Rect(50, self.lava_height + self.camera_y, 700, screen_height)
             pygame.draw.rect(self.screen, (156, 44, 119), self.lava_rect_draw)
             #update for lava
-            self.lava_height -= 1
+            if self.lava_timer == 0:
+                self.lava_height -= 1
+                
+                if self.lava_height > - self.camera_y + self.screen_height:
+                    self.lava_height = - self.camera_y + self.screen_height
+                    self.lava_timer = 1
+
             #collid lava
             if self.player.GetRect().colliderect(self.lava_rect):
-                self.have_to_quit = True
+                    self.have_to_quit = True
+            
     
     def Refresh(self):
         pygame.display.flip()
 
     def EveryTenMilliSecAction(self):
-        pass
+        self.counter += 1
+        if self.counter == 100:
+            self.counter = 0
+            if self.lava_timer > 0:
+                self.lava_timer -= 1
+
 
 pygame.time.set_timer(pygame.USEREVENT, 10)
 

@@ -15,12 +15,12 @@ class Player():
     
     def Update(self, mouse_pressed, level_up, level_down, limit, camera_y, upest_level_number):
         if mouse_pressed:
-            self.velocity_y = -5
+            self.velocity_y = -8
         
         self.x += self.velocity_x
         self.y += self.velocity_y
 
-        self.velocity_y += 0.3
+        self.velocity_y += 0.5
 
         collid = False
         for i in level_down:
